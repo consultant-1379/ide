@@ -1,0 +1,46 @@
+<project xmlns="http://maven.apache.org/DECORATION/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd">
+    <bannerLeft>
+        <name>ENM IDE</name>
+        <href>http://www.ericsson.com/</href>
+    </bannerLeft>
+    
+    <bannerRight>
+        <src>images/logo.png</src>
+        <href>http://www.ericsson.com/</href>
+    </bannerRight>
+
+    <version position="left"/>
+
+    <body>
+        <menu name="Project Documentation">
+            <item name="Overview" href="index.html" />
+            <item name="Installation - ELX" href="installation/elx.html" />
+            <item name="Installation - Windows" href="installation/windows.html" />
+            <item name="Usage - Windows &amp; ELX" href="usage/usage.html" />
+            <item name="What's Included?" href="usage/packages.html" />
+        </menu>
+
+        <menu name="Presentations">
+            <item name="Slide pack" href="ENM_IDE_Powerpoint.ppt" />
+            <item name="IDE Demo video" href="https://play.ericsson.net/media/t/0_9ikrg6xz/34452651" />
+        </menu>
+
+        <menu name="Technical Support">
+            <item name="Get Support" href="usage/support.html" />
+            <item name="Make Contributions" href="usage/contribute.html" />
+        </menu>
+    </body>
+
+    <poweredBy>
+        <logo name="Ericsson" href="http://www.ericsson.com/" img="images/logo.png" />
+    </poweredBy>
+
+    <skin>
+        <groupId>com.ericsson.cds</groupId>
+        <artifactId>ericsson-skin-stats</artifactId>
+        <version>1.0.1</version>
+    </skin>
+
+</project>

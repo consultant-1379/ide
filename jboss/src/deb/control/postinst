@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# export environment variables
+export JAVA_HOME=/usr/lib/jvm/java-7-oracle
+export JBOSS_CONF=/etc/jboss/jboss-as.conf
+export JBOSS_HOME=/usr/local/jboss
+export PATH="${PATH}:{JBOSS_HOME}/bin:${JAVA_HOME}/bin"
+
+# set jboss-as init.d to start on system boot
+#update-rc.d jboss-as defaults
+
+# uncomment guest in application-roles.properties file
+sed -i 's/#guest=guest/guest=guest/' /$JBOSS_HOME/standalone/configuration/application-roles.properties
+
+# add user and user password to access JBoss UI at http://localhost:9990/console
+$JBOSS_HOME/bin/add-user.sh --silent jboss Jboss#123

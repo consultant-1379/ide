@@ -1,0 +1,8 @@
+#!/bin/sh
+
+sed -i.orig '/^#JAVA_HOME/ c\JAVA_HOME=/usr/lib/jvm/java-7-oracle' /etc/default/tomcat6
+sed -i.orig "s/8080/8088/" /etc/tomcat6/server.xml
+
+chown tomcat6:tomcat6 /usr/share/tomcat6
+service tomcat6 restart
+

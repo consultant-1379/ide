@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.ericsson.de</groupId>
+        <artifactId>ide</artifactId>
+        <version>1.0.1</version>
+    </parent>
+    <artifactId>eclipse-pmd</artifactId>
+    <version>4.0.5-4enm-SNAPSHOT</version>
+
+    <properties>
+        <pmd.plugin.version>4.0.5.v20141105-1906</pmd.plugin.version>
+        <ericsson.scm.url>scm:git:[fetch=]ssh://gerritmirror-ha.lmera.ericsson.se:29418/OSS/com.ericsson.de/ide[push=]ssh://gerrit.ericsson.se:29418/OSS/com.ericsson.de/ide</ericsson.scm.url>
+    </properties>
+
+    <scm>
+        <developerConnection>${ericsson.scm.url}</developerConnection>
+        <connection>${ericsson.scm.url}</connection>
+      <tag>HEAD</tag>
+  </scm>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <stripVersion>true</stripVersion>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.eclipse.plugins</groupId>
+                                    <artifactId>net.sourceforge.pmd.eclipse.plugin</artifactId>
+                                    <version>${pmd.plugin.version}</version>
+                                    <destFileName>net.sourceforge.pmd.eclipse.plugin_${pmd.plugin.version}.jar</destFileName>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>jdeb</artifactId>
+                <groupId>org.vafer</groupId>
+                <configuration>
+                    <dataSet>
+                        <data>
+                            <src>${project.build.directory}/net.sourceforge.pmd.eclipse.plugin_${pmd.plugin.version}.jar</src>
+                            <type>file</type>
+                            <mapper>
+                                <type>perm</type>
+                                <user>root</user>  
+                                <group>root</group>
+                                <strip>1</strip>
+                                <prefix>/usr/local/eclipse/dropins</prefix>
+                            </mapper>
+                        </data>
+                    </dataSet>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+[ -x /usr/share/update-notifier/notify-reboot-required ] && /usr/share/update-notifier/notify-reboot-required || true
+touch /var/lib/update-notifier/dpkg-run-stamp
+

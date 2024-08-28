@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# export environment variables
+export JAVA_HOME=/usr/lib/jvm/java-7-oracle
+export PATH="${PATH}:${JAVA_HOME}/bin"
+
+cd /usr/local/ymer-sdk
+
+python ez_setup.py
+easy_install-2.7 pip
+python setup.py install
+easy_install-2.7 requests
+pip uninstall -y pyreadline
+
+chmod +x ymersdk.sh
+ln -s /usr/local/ymer-sdk/ymersdk.sh /usr/local/bin/ymersdk.sh

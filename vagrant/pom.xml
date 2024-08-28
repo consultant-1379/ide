@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.ericsson.de</groupId>
+        <artifactId>ide</artifactId>
+        <version>1.0.1</version>
+    </parent>
+    <artifactId>vagrant</artifactId>
+    <version>1.7.3-SNAPSHOT</version>
+    <packaging>pom</packaging> 
+
+    <properties>
+        <ericsson.scm.url>scm:git:[fetch=]ssh://gerritmirror-ha.lmera.ericsson.se:29418/OSS/com.ericsson.de/ide[push=]ssh://gerrit.ericsson.se:29418/OSS/com.ericsson.de/ide</ericsson.scm.url>
+    </properties>
+
+    <scm>
+        <developerConnection>${ericsson.scm.url}</developerConnection>
+        <connection>${ericsson.scm.url}</connection>
+      <tag>HEAD</tag>
+  </scm>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.vagrant</groupId>
+                                    <artifactId>vagrant</artifactId>
+                                    <version>1.7.2</version>
+                                    <type>deb</type>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <destFileName>vagrant-1.7.2.deb</destFileName>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

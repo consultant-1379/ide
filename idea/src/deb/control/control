@@ -1,0 +1,8 @@
+Package: idea
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: IntelliJ IDEA
+Maintainer: robert.wettergren@ericsson.com
+Depends: oracle-java7-installer

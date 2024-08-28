@@ -1,0 +1,7 @@
+Package: vagrant
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: amd64
+Description: ENM Vagrant
+Maintainer: robert.wettergren@ericsson.com

@@ -1,0 +1,7 @@
+Package: motd
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: Usage policy
+Maintainer: robert.wettergren@ericsson.com

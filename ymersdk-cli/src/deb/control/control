@@ -1,0 +1,8 @@
+Package: ymersdk-cli
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: amd64
+Description: YMER SDK CLI
+Maintainer: robert.wettergren@ericsson.com
+Depends: oracle-java7-installer, python2.7, jboss, maven, versant

@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+
+echo "eclipse-lmitor: Installing LMITOR-ENMIDE feature group into eclipse";
+echo "eclipse-lmitor:  - Bundlepool:  com.ericsson.commonpref.lmitorenmide.feature.group";
+echo "eclipse-lmitor:  - Destination: /usr/local/eclipse/dropins/com.ericsson.commonpref.lmitorenmide.feature.group/eclipse";
+echo "eclipse-lmitor: This may take a few minutes to complete, please be patient...";
+
+eclipse -application org.eclipse.equinox.p2.director \
+        -repository http://camowh1800-h48.mo.ca.am.ericsson.se/updates/p2Repo/mars/ \
+        -installIU com.ericsson.commonpref.lmitorenmide.feature.group \
+        -noSplash \
+        -destination /usr/local/eclipse \
+        -bundlepool /usr/local/eclipse/dropins/com.ericsson.commonpref.lmitorenmide.feature.group/eclipse
+
+echo "eclipse-lmitor: LMITOR-ENMIDE install complete";
+
+exit 0;
+

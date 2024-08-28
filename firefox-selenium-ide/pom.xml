@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.ericsson.de</groupId>
+        <artifactId>ide</artifactId>
+        <version>1.0.1</version>
+    </parent>
+    <artifactId>firefox-selenium-ide</artifactId>
+    <version>2.8.0-6enm-SNAPSHOT</version>
+
+    <properties>
+        <selenium.version>2.8.0</selenium.version>
+        <ericsson.scm.url>scm:git:[fetch=]ssh://gerritmirror-ha.lmera.ericsson.se:29418/OSS/com.ericsson.de/ide[push=]ssh://gerrit.ericsson.se:29418/OSS/com.ericsson.de/ide</ericsson.scm.url>
+    </properties>
+        
+    <scm>
+        <developerConnection>${ericsson.scm.url}</developerConnection>
+        <connection>${ericsson.scm.url}</connection>
+      <tag>HEAD</tag>
+  </scm>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <stripVersion>true</stripVersion>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.mozilla.plugins</groupId>
+                                    <artifactId>selenium-ide</artifactId>
+                                    <version>${selenium.version}</version>
+                                    <type>xpi</type>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <destFileName>{a6fd85ed-e919-4a43-a5af-8da18bda539f}.xpi</destFileName>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>jdeb</artifactId>
+                <groupId>org.vafer</groupId>
+                <configuration>
+                    <dataSet>
+                        <data>
+                            <src>${project.build.directory}/{a6fd85ed-e919-4a43-a5af-8da18bda539f}.xpi</src>
+                            <type>file</type>
+                            <mapper>
+                                <type>perm</type>
+                                <user>root</user>  
+                                <group>root</group>
+                                <filemode>644</filemode>
+                                <prefix>/usr/lib/firefox-addons/extensions</prefix>
+                            </mapper>
+                        </data>
+                    </dataSet>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

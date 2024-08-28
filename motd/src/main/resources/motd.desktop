@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=MOTD
+Comment=Display Usage Pilicy
+Exec=/usr/local/bin/motd.sh
+Terminal=false
+Type=Application
+NoDisplay=true

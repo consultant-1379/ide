@@ -1,0 +1,4 @@
+#!/bin/sh
+eclipse -application org.eclipse.equinox.p2.director \
+        -uninstallIU com.ericsson.commonpref.lmitorenmide.feature.group \
+        -noSplash

@@ -1,0 +1,8 @@
+Package: python
+Version: ${project.version}
+Section: misc
+Priority: high
+Architecture: all
+Description: Python for Linux 
+Maintainer: giovanni.giurin@ericsson.com
+Depends: 

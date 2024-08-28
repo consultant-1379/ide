@@ -1,0 +1,8 @@
+Package: docker-engine
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: Docker Engine
+Maintainer: giovanni.giurin@ericsson.com
+Depends:

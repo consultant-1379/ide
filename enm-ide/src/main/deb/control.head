@@ -1,0 +1,7 @@
+Package: enm-ide
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: ENM IDE Meta package
+Maintainer: robert.wettergren@ericsson.com

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.ericsson.de</groupId>
+        <artifactId>ide</artifactId>
+        <version>1.0.1</version>
+    </parent>
+    <artifactId>postgres</artifactId>
+    <version>9.3.9-5enm-SNAPSHOT</version>
+
+    <properties>
+        <ericsson.scm.url>scm:git:[fetch=]ssh://gerritmirror-ha.lmera.ericsson.se:29418/OSS/com.ericsson.de/ide[push=]ssh://gerrit.ericsson.se:29418/OSS/com.ericsson.de/ide</ericsson.scm.url>
+    </properties>
+
+    <scm>
+        <developerConnection>${ericsson.scm.url}</developerConnection>
+        <connection>${ericsson.scm.url}</connection>
+      <tag>HEAD</tag>
+  </scm>
+
+</project>

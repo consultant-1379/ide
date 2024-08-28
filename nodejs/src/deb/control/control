@@ -1,0 +1,8 @@
+Package: nodejs
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: Nodejs IDE
+Maintainer: giovanni.giurin@ericsson.com
+Depends: 

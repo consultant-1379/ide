@@ -1,0 +1,8 @@
+Package: eclipse
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: EECS Eclipse
+Maintainer: robert.wettergren@ericsson.com
+Depends: oracle-java7-installer

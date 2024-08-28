@@ -1,0 +1,8 @@
+Package: eclipse-pmd
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: Eclipse PMD Plugin
+Maintainer: robert.wettergren@ericsson.com
+Depends: eclipse (>= 4.4.2-0enm)

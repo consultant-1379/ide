@@ -1,0 +1,8 @@
+Package: pycharm
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: PyCharm IDE
+Maintainer: robert.wettergren@ericsson.com
+Depends: python2.7, python2.7-dev, oracle-java7-installer

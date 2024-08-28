@@ -1,0 +1,7 @@
+Package: ide-update
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: Usage policy
+Maintainer: giovanni.giurin@ericsson.com

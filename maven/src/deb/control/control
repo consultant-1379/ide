@@ -1,0 +1,8 @@
+Package: maven
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: Apache Maven
+Maintainer: robert.wettergren@ericsson.com
+Depends: oracle-java7-installer

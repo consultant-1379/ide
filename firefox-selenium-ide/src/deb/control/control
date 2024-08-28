@@ -1,0 +1,8 @@
+Package: firefox-selenium-ide
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: amd64
+Description: Firefox Selenium IDE Plugin
+Maintainer: robert.wettergren@ericsson.com
+Depends: firefox (>=30)

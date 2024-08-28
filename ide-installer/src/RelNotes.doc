@@ -1,0 +1,162 @@
+Rel.      Comment
+------    -----------------------------------------------------------------------
+
+
+
+[ Rel. 1.0.0 ]     25/02/2016
+    Base version
+       - Move preinstalled and configured ENM_IDE_Base Vagrant VM from a
+         system administrator's source PC to a target PC 
+         1) ask E/// signum to the target PC user
+         2) install all the mandatory accessories components (VirtualBox,
+            VcXsrv, Vagrant, Ide project, batch script files) 
+            on target PC
+           3) move the ENM_IDE_Base on the target PC
+           4) change signum and adjust User's path on the moved files 
+              that requires it (i.e. ENM_IDE_Base.vbox)
+	   5) Run Vagrant VM on target PC in headless mode using 
+                   bath files
+
+[ Rel. 1.0.1 ]     2/03/2016
+    New Features
+	- IDE Installer criteria has been changed: No more move a preinstalled Vagrant VM but create a new one on target PC.
+	  1) ask E/// signum and allow change of path on target PC
+ 	  2) ask if want to run IDE in desktop mode
+	  3) ask if user want an icon on desktop's target PC
+	  4) Install all necessary components on target 
+             C:\Users\<signum>\ENM_IDE directory:
+                      Batch Files
+                      VirtualBox installer
+                      VcXsrv installer
+                      Vagrant installer
+                      ~/gitrepos/ide/vagrant project's directory
+                      Curl.exe files both for x86 and x64 systems
+                    
+	  5) Run all installers deployed on ENM_IDE dir in following 
+             order:  VirtualBox, VcXsrv, Vagrant
+	  7) test if curl.exe installed with VirtualBox on target PC is
+             running according to System Requirements (x86 or 64bit) if
+             not working it will copy the right version on target dir.
+	  6) Ask if we want to run VagrantUp
+	  7) If Yes, perform Vagrant up.
+	- Select if Vagrant Desktop using a choice and a variable on 
+          InitWizard procedure using "PersonalVagrantUsageDesktopPage" 
+	  of type "CreateInputOptionPage".
+	- Ask if user want to perform "Vagrant up" automatically and gets
+          from Gerrit lates Vagrantfile there published.
+	- Run a batch file copied on target PC that uses VBoxManage.exe
+	  to set and run VM in headless mode.
+	 
+[ Rel. 1.0.1.2 ]     2/03/2016
+    New Features
+	- Define the VAGRANT_DESKTOP=true in registry keeping oldest 
+          messagebox to select if usage desktop. 
+
+[ Rel. 1.0.1.3 ]     2/03/2016
+    New Features
+	- IDE_Installer now is able to set VAGRANT_DESKTOP=true 
+          environment variable on "User variable" Windows environment 
+	  variables section. 
+	  Changed messageBox with asking user if he want to use desktop
+          mode: now is together with "Icon on Desktop" question
+	- Run VirtualBox.exe to run VBox, instead of previous batch file
+          that were run both VirtualBox and VM always in headless mode
+
+[ Rel. 1.0.1.4 ]     2/03/2016
+    Bug Fixing
+	- AXIX team Issue: (8/03) The windows installer created a 
+          shortcut on the desktop with the wrong link (i.e.:
+          "C:\Users\ekemark\..\ENM_IDE_Base\ENM_IDE_Base.vbox")
+          FIX:
+	    Run the VM double clicking on the desktop icon
+	    Run the IDE in desktop mode if you select that option 
+            during installation steps
+
+[ Rel. 1.0.1.5 ]     2/03/2016
+    Bug Fixing
+	- AXIX team Issue: (8/03) Does it always download the latest
+                                  vagrant file.
+	  Reason of Issue:
+             The latest Vagrantfile is copied from Gerrit only it the
+             automatic "vagrant up" is choiced ("Yes")
+          FIX:
+            The fix is on "PerformVagrantUp" routine to move out of the 
+             the "if answer Yes" the curl:
+             Exec('cmd.exe','/C powershell -command "$clnt = new-object System.net.WebClient; $clnt.DownloadFile(\"https://gerrit.ericsson.se/gitweb?p=OSS/com.ericsson.de/ide.git; a=blob_plain;f=vagrant/Vagrantfile\",\"'+ strIdeTargetPath + '\Vagrantfile\")"','', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+
+	- AXIX team Issue: (8/03) The windows installer gave an error
+                                  "Reading the file size failed"
+
+[ Rel. 1.0.1.6 ]     14/03/2016
+    Bug Fixing
+	- CIS-24421 (14/03): IDE Installer Exe throws "Reading the file
+                             size failed." error.
+	  Reason of Issue:
+            The C:\Temp directory not already present on target PC
+          FIX:
+            The fix is to avoid to create the C:\Temp directory if not
+            already present. 
+	    That directory needs only to redirect the 
+                      "vagrant up --debug" output.
+	    So the solution is redirect this OutVagrantUp.log output log
+            file into the target ENM_IDE\log directory
+                     
+
+	- CIS-24444 (14/03):  IDE Installer doesn't run vagrant up.
+	  Reason of Issue:
+            The C:\Temp directory not already present on target PC
+          FIX:
+	    The fix is to avoid to create the C:\Temp directory if not 
+            already present. 
+	    That directory needs only to redirect the 
+                    "vagrant up --debug" output.
+	    So the solution is redirect this OutVagrantUp.log output log
+            file into the target ENM_IDE\log directory
+
+[ Rel. 1.0.1.14 ]     1/06/2016
+    New features:
+	- Removed the starting information box that shows commands to be used 
+          on IDE for upgrades
+
+ 
+    Bug Fixing:
+	- CIS-26686:  ENM IDE: Installation fails when another older VM-Vbox is
+		      already installed
+	  Reason of Issue:
+  	     ENM_IDE installer for Windows was not forcing the installation of
+             its associated VirtualBox Extention pack after the VirtualBox
+             installation on the patrget PC.
+             This cause a misalignment on VirtualBox that more often can make 
+	     failures on Vagrant VM.
+	  FIX:
+	     Added new method "RunVBoxPackInstaller" and run it after VBox has 
+	     been installed.
+
+	- CIS-26204:  ENM IDE support to install IDE.
+	  Reason of Issue:
+		 more often user cannot uninstall already installed VirtualBox 
+		 because one have already a different development environment 
+                 or VMs configured, and ide-installer new VBox installation
+		 could risk to destroy that VMs or make them unusable.
+	  FIX:
+		Added the check of current installed release using "wmic"
+		 
+
+[ Rel. 1.0.1.15 ]     23/06/2016
+    New features:
+	- New structure of artifact: now it is a zip that contains the .exe, the .cer, and a .bat dos batch file that is the installer to be run by target user (it allows to add the certificate into the Trusted Root Path on target PC)
+
+ 
+    Bug Fixing:
+	- CIS-27333:  ENM IDE: publisher unknown due to absence of signature
+
+	  Reason of Issue:
+  	     ENM_IDE installer for Windows had not signature. 
+
+	  FIX:
+	     A signature introduced and also a certificate created an 
+          packed into the new .zip format.
+
+
+
+

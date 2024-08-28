@@ -1,0 +1,2 @@
+#!/bin/sh
+[ -d /usr/local/eclipse ] && rm -fr /usr/local/eclipse

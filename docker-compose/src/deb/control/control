@@ -1,0 +1,8 @@
+Package: docker-compose
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: Docker Compose
+Maintainer: robert.wettergren@ericsson.com
+Depends: docker-engine

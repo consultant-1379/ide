@@ -1,0 +1,351 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['CURRENT_USER'] = [ENV['USER'],ENV['USERNAME']].compact[0].downcase
+ENV['OS_TYPE'] = [ENV['OS']].compact[0]
+ENV['HOST_NAME'] = [ENV['COMPUTERNAME']].compact[0]
+ENV['USER_PROFILE'] = [ENV['USERPROFILE']].compact[0]
+ENV['LINUX_HOME'] = [ENV['HOME']].compact[0]
+
+#system('bcdedit /set hypervisorlaunchtype off')
+# convert virtual disk from .vmdk to .vdi
+system "cd C:/Users/#{ENV['CURRENT_USER']}/ENM_IDE/scripts/ & bash ConvertVboxDisk.sh"
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+#
+#    echo "Setting TimeZone..."
+#    sudo rm /etc/localtime 
+#    export sorg="/usr/share/zoneinfo/" + timezone
+#    ln -s "/usr/share/zoneinfo/" + timezone + " /etc/localtime"
+
+$install_ide = <<SCRIPT
+    #!/bin/sh
+    echo "Creating 4Gb swapfile..."
+    fallocate -l 4G /swapfile
+    chmod 600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+    echo "/swapfile               swap     swap   defaults        0 0" >>/etc/fstab
+
+    echo "Setting usernames..."
+    export host_user=#{ENV['CURRENT_USER']}
+    export guest_user=${host_user,,}
+    echo "Host user : "${host_user}
+    echo "Guest user: "${guest_user}
+
+    echo "Adding user to vagrant guest..."
+    groupadd -g 2000 ${guest_user}
+    export pwdcrypted=$(openssl passwd -crypt ericsson)
+    useradd -m ${guest_user} -u 2000 -g 2000 -s /bin/bash -p $pwdcrypted
+    echo "useradd -m ${guest_user} -u 2000 -g 2000 -s /bin/bash -p $pwdcrypted"
+    usermod -aG docker ${guest_user}
+    usermod -aG docker vagrant
+    echo "${guest_user} ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers.d/vagrant
+    echo "#!/bin/sh -e" >/etc/rc.local
+
+    echo "Setting default keyboard layout..."
+    mkdir -p /home/${guest_user}/.config/xfce4/xfconf/xfce-perchannel-xml
+    echo '<?xml version="1.0" encoding="UTF-8"?>' >/home/${guest_user}/.config/xfce4/xfconf/xfce-perchannel-xml/keyboard-layout.xml
+    echo '<channel name="keyboard-layout" version="1.0">' >>/home/${guest_user}/.config/xfce4/xfconf/xfce-perchannel-xml/keyboard-layout.xml
+    echo '  <property name="Default" type="empty">' >>/home/${guest_user}/.config/xfce4/xfconf/xfce-perchannel-xml/keyboard-layout.xml
+    echo '    <property name="XkbDisable" type="bool" value="false"/>' >>/home/${guest_user}/.config/xfce4/xfconf/xfce-perchannel-xml/keyboard-layout.xml
+    echo '    <property name="XkbLayout" type="string" value="gb,us"/>' >>/home/${guest_user}/.config/xfce4/xfconf/xfce-perchannel-xml/keyboard-layout.xml
+    echo '    <property name="XkbVariant" type="string" value="extd,"/>' >>/home/${guest_user}/.config/xfce4/xfconf/xfce-perchannel-xml/keyboard-layout.xml
+    echo '  </property>' >>/home/${guest_user}/.config/xfce4/xfconf/xfce-perchannel-xml/keyboard-layout.xml
+    echo '</channel>' >>/home/${guest_user}/.config/xfce4/xfconf/xfce-perchannel-xml/keyboard-layout.xml
+
+    echo "Enabling automatic login..."
+    echo "[SeatDefaults]" >/etc/lightdm/lightdm.conf
+    echo "autologin-user=${guest_user}" >>/etc/lightdm/lightdm.conf
+    echo "autologin-user-timeout=0" >>/etc/lightdm/lightdm.conf
+
+    echo "Restarting desktop for settings to take effect..."
+    service lightdm restart
+
+    echo "Copying SSH keys..."
+    mkdir -p /home/${guest_user}
+    cp -rp /mnt/${host_user}/.ssh /home/${guest_user}
+    cat /mnt/${host_user}/.ssh/id_*.pub >>/home/${guest_user}/.ssh/authorized_keys
+    grep -q StrictHostKeyChecking /home/${host_user}/.ssh/config 2>/dev/null
+    if [ $? -ne 0 ]; then
+        echo "Host *" >>/home/${host_user}/.ssh/config
+        echo "   StrictHostKeyChecking no" >>/home/${host_user}/.ssh/config
+        echo "   UserKnownHostsFile=/dev/null" >>/home/${host_user}/.ssh/config
+    fi
+
+    sudo cp /mnt/${guest_user}/home/ENM_IDE/scripts/${guest_user}.cron /var/spool/cron/crontabs/${guest_user}
+    sudo cp /mnt/${guest_user}/home/ENM_IDE/scripts/freedockerAndDefrag.sh /etc/init.d
+
+    if [ "${guest_user}" != "${host_user}" ]; then
+        echo "Username in uppercase detected - ${host_user}..."
+        if [ ! $(grep -Pzoq "^Host 127.0.0.1\$(.|\n)User ${USER}$") ]; then
+            echo "Adding lowercase username to host .ssh/config..."
+            echo "Host 127.0.0.1" >> /mnt/${host_user}/.ssh/config
+            echo "  User "${guest_user} >> /mnt/${host_user}/.ssh/config
+        fi
+    fi
+
+    echo -n "export PS1=\'\\[\\033[0;32m\\]\\[\\033[0m\\033[0;32m\\]\\u\\[\\033[0;36m\\]:\\w\\[\\033[0;32m\\] (\$" >> /home/${host_user}/.bashrc
+    echo "(git branch 2>/dev/null | grep \\"^*\\" | colrm 1 2)\\[\\033[0;32m\\])\\[\\033[0m\\033[0;32m\\] \\$\\[\\033[0m\\033[0;32m\\]\\[\\033[0m\\]\'" >> /home/${host_user}/.bashrc
+    echo "\n# fix gnome-keyring issue by starting ssh-agent \nif [[ -z \\${SSH_AGENT_PID} ]]; then \neval \\"\\$(ssh-agent -s)\\" \nfi" >> /home/${host_user}/.bashrc
+    chmod 755 /home/${host_user}/.bashrc
+
+    chmod 700 /home/${guest_user}/.ssh/
+    chmod 600 /home/${guest_user}/.ssh/*
+
+    echo "Populating Maven settings.xml for ${guest_user}"
+    if [ ! -e /home/${guest_user}/.m2/settings.xml ]
+    then
+        mkdir -p /home/${guest_user}/.m2/
+        cp /usr/local/maven/conf/settings.xml /home/${guest_user}/.m2/settings.xml
+    fi
+
+    echo "Populating git user information in ~/.gitconfig"
+    if [ -e /mnt/${host_user}/home/.gitconfig ]
+    then
+        echo '[user]' >/home/${guest_user}/.gitconfig
+        grep 'name = ' /mnt/${host_user}/home/.gitconfig >>/home/${guest_user}/.gitconfig
+        grep 'email = ' /mnt/${host_user}/home/.gitconfig >>/home/${guest_user}/.gitconfig
+    fi
+    mkdir -p /home/${guest_user}/gitrepos
+    chown -R ${guest_user}:${guest_user} /home/${guest_user}/
+
+    echo "Setting default git configuratiuon..."
+    sudo -u ${guest_user} -H -E -s eval "git config --global core.editor vim"
+    sudo -u ${guest_user} -H -E -s eval "echo 'set smartindent' >~/.vimrc"
+    sudo -u ${guest_user} -H -E -s eval "echo 'set tabstop=4' >>~/.vimrc"
+    sudo -u ${guest_user} -H -E -s eval "echo 'set shiftwidth=4' >>~/.vimrc"
+    sudo -u ${guest_user} -H -E -s eval "echo 'set expandtab' >>~/.vimrc"
+
+    echo "Cloning ide-config git repo..."
+    sudo -u ${guest_user} -H -E -s eval "cd /home/${guest_user}; git clone ssh://gerritmirror-ha.lmera.ericsson.se:29418/OSS/com.ericsson.de/ide-config /home/${guest_user}/gitrepos/ide-config"
+    sudo -u ${guest_user} -H -E -s eval "cd /home/${guest_user}/gitrepos/ide-config && git remote set-url --push origin ssh://gerrit.ericsson.se:29418/OSS/com.ericsson.de/ide-config"
+
+    curl --silent -X POST https://fem101-eiffel004.lmera.ericsson.se:8443/jenkins/job/IDE_Record_Install/build --form json='{"parameter": [{"name":"IDE_USER", "value":"#{ENV['CURRENT_USER']}"},{"name":"OS_TYPE", "value":"#{ENV['OS_TYPE']}"},{"name":"HOST_NAME", "value":"#{ENV['HOST_NAME']}"},{"name":"USER_PROFILE", "value":"#{ENV['USER_PROFILE']}"}]}' || true
+    
+    # java8 installation
+    cd /usr/lib/jvm
+    sudo wget https://arm1s11-eiffel004.eiffel.gic.ericsson.se:8443/nexus/service/local/repositories/3pptools/content/com/oracle/jdk/1.8.0_181/jdk-1.8.0_181-x64.tar.gz
+    sudo tar xvf jdk-1.8.0_181-x64.tar.gz
+    sudo rm -rf jdk-1.8.0_181-x64.tar.gz
+    
+    # define environments variable for java8
+    echo "\nexport JAVA_HOME=/usr/lib/jvm/jdk1.8.0_181\nexport PATH=/usr/local/maven/bin:/usr/lib/jvm/jdk1.8.0_181/bin:/usr/local/jboss/bin:/usr/lib/jvm/jdk1.8.0_181/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" >> /home/${host_user}/.bashrc 
+SCRIPT
+
+$registerBootUp = <<SCRIPT
+    curl --silent -X POST https://fem101-eiffel004.lmera.ericsson.se:8443/jenkins/job/IDE_Record_BootUp/build --form json='{"parameter": [{"name":"IDE_USER", "value":"#{ENV['CURRENT_USER']}"},{"name":"OS_TYPE", "value":"#{ENV['OS_TYPE']}"},{"name":"HOST_NAME", "value":"#{ENV['HOST_NAME']}"},{"name":"USER_PROFILE", "value":"#{ENV['USER_PROFILE']}"}]}' || true
+SCRIPT
+
+#$installOpenStackAndHeat = <<SCRIPT
+#  echo "apt-get udate!!!"
+#  sudo apt-get update -q -y
+#  sudo apt-get install python-dev python-pip -y
+#  sudo pip install python-openstackclient
+#  sudo pip install python-heatclient
+#SCRIPT
+
+
+Vagrant.configure(2) do |config|
+  host = RbConfig::CONFIG['host_os']
+  puts "host is: #{host}"
+  utente = "#{ENV['CURRENT_USER']}"
+  puts "utente: #{utente}"
+  
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://atlas.hashicorp.com/search.
+  # config.vm.box = "base"
+  config.vm.box = "ENM/16B"
+  config.vm.box_url = "https://arm1s11-eiffel004.eiffel.gic.ericsson.se:8443/nexus/service/local/repositories/releases/content/com/ericsson/de/ENM_IDE_Base/1.0.19/ENM_IDE_Base-1.0.19.box"
+  config.vm.box_download_insecure = true
+  config.ssh.forward_x11 = true
+
+  
+
+  # Align your ENM-IDE VM timezone to that of your host.
+  require 'time'
+  tiz = Time.now.zone
+  tempo = Time.now.gmt_offset
+  firstoffset = Time.zone_offset(Time.now.zone)
+  secondoffset = (Time.zone_offset(Time.now.zone) / 60)
+
+  offset = ((Time.zone_offset(Time.now.zone) / 60) / 60)
+  if offset < 0
+	 offset = offset * -1
+         timezone_suffix = "+#{offset.to_s}"
+  else	 
+         timezone_suffix = "-#{offset.to_s}"
+  end
+  timezone = 'Etc/GMT' + timezone_suffix
+  #Debug timeZone values
+  config.vm.provision :shell, inline: <<-EOF 
+    echo  "tz #{tiz}"
+    echo  "tempo #{tempo}"
+    echo  "firstoffset is #{firstoffset}"
+    echo  "secondoffset is #{secondoffset}"
+    echo  "Local server offset is #{offset}"
+    echo  "Local server timezone_suffix is #{timezone_suffix}"
+    echo  "Local server timezone is #{timezone}"
+  EOF
+  config.vm.provision :shell, :inline => "echo \"#{timezone_suffix}\" && sudo rm /etc/localtime && sudo ln -s /usr/share/zoneinfo/" + timezone + " /etc/localtime", run: "always"
+  
+  # Adjust in your ENM-IDE the nsswitch.conf file in way that your applications can use dns only if they didn't find nothing locally of in short network area.
+  config.vm.provision "shell", inline: "sudo sed -i \'s/=return]/=continue]/g\' /etc/nsswitch.conf", run: 'always'
+  config.vm.provision "shell", inline: "sudo loadkeys us", run: 'always'
+    # "sudo sed -i \'$ a if [ -d \\\"/usr/local/lib\\\" ] then\\n    PATH=\\\"/usr/local/lib:$PATH\\\"\\nfi\' /home/vagrant/.profile"
+
+  # Configure your ENM-IDE at first installation, or, if already installed, manage the boot up.  
+  config.vm.provision "shell", inline: $install_ide
+  config.vm.provision "shell", inline: $registerBootUp, run: 'always' 
+  # config.vm.provision "shell", inline: $installOpenStackAndHeat
+  config.vm.define "ENM IDE"
+  config.vm.provider :virtualbox do |vb|
+
+  #service lightdm restart
+  #config.vm.provision "shell", inline: "service lightdm restart", run: 'always' 
+
+  # From https://datasift.github.io/storyplayer/v2/tips/vagrant/speed-up-virtualbox.html
+  # change the network card hardware for better performance
+  vb.customize ["modifyvm", :id, "--nictype1", "virtio" ]
+  #vb.customize ["modifyvm", :id, "--nictype2", "virtio" ]
+
+  # suggested fix for slow network performance
+  # see https://github.com/mitchellh/vagrant/issues/1807
+  vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+  vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+
+  vb.customize ["setextradata", :id, "VBoxInternal/RamPreAlloc", "0" ]
+
+  
+  if host =~ /mingw32/
+	   puts "host is mingw32 go to wmic"
+	   # mem = `wmic os get FreePhysicalMemory | grep '^[0-9]'`.to_i / 1024 / 1.3
+	   memo = `wmic OS get FreePhysicalMemory | grep '^[0-9]'`.to_i / 1024
+	   mem = `wmic OS get FreePhysicalMemory | grep '^[0-9]'`.to_i / 1024 / 1.05
+	   mem = mem.to_i
+	   puts "total memory: #{memo}"
+	   puts "memory: #{mem}"
+	   diff = memo - mem
+  	   puts "memory: #{diff}"
+	   if diff < 1024
+	     mem = memo-1024
+  	     puts "final mem: #{mem}"
+	   end
+  end
+  vb.customize ["modifyvm", :id, "--memory", mem]
+
+  vb.name = "ENM_IDE_Base"
+#  vb.memory = 4096
+  vb.memory = mem
+  vb.cpus = 2
+
+  if ENV['VAGRANT_DESKTOP']
+    vb.gui = true
+  end
+end
+#  config.ssh.username = "#{ENV['CURRENT_USER']}"
+#  config.ssh.password = "vagrant"
+#  config.ssh.private_key_path = "~/.ssh/id_rsa.pub"
+#  config.ssh.forward_agent = true
+#  config.ssh.insert_key = true 
+
+
+  # Disable automatic box update checking. If you disable this, then
+  # boxes will only be checked for updates when the user runs
+  # `vagrant box outdated`. This is not recommended.
+  # config.vm.box_check_update = false
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine. In the example below,
+  # accessing "localhost:8080" will access port 80 on the guest machine.
+  config.vm.network "forwarded_port", host_ip: "127.0.0.1", guest: 80, host: 8088
+  # config.vm.network :forwarded_port, host_ip: "127.0.0.1", guest: 21, host: 2222
+  # config.vm.network :public_network, :use_dhcp_assigned_default_route => false, run: "always"
+  # config.vm.network :public_network, :bridge => 'em1', :ip => '192.168.0.17', run: "always", inline: "ifconfig eth1 192.168.0.17 netmask 255.255.255.0 up"
+
+  # Create a private network, which allows host-only access to the machine
+  # using a specific IP.
+  # config.vm.network "private_network", ip: "192.168.33.10"
+
+  # Create a public network, which generally matched to bridged network.
+  # Bridged networks make the machine appear as another physical device on
+  # your network.
+  # config.vm.network "public_network", run: 'always'
+  #config.vm.network :public_network, :bridge => 'em1',:use_dhcp_assigned_default_route => true
+
+  # sudo curl --silent -X POST https://fem101-eiffel004.lmera.ericsson.se:8443/jenkins/job/IDE_Record_BootUp/build --form json='{"parameter": [{"name":"IDE_USER", "value":"#{ENV['CURRENT_USER']}"},{"name":"OS_TYPE", "value":"#{ENV['OS_TYPE']}"}]}' || true
+  
+
+  # Share an additional folder to the guest VM. The first argument is
+  # the path on the host to the actual folder. The second argument is
+  # the path on the guest to mount the folder. And the optional third
+  # argument is a set of non-required options.
+  # config.vm.synced_folder "../data", "/vagrant_data"
+
+#  config.vm.synced_folder "#{ENV['HOME']}/.m2", "/mnt/#{ENV['CURRENT_USER']}/.m2",  mount_options: ["dmode=775,fmode=664"]
+#  config.vm.synced_folder "#{ENV['HOME']}/workspace", "/mnt/#{ENV['CURRENT_USER']}/workspace",  mount_options: ["dmode=775,fmode=664"]
+#  config.vm.synced_folder "#{ENV['HOME']}/Downloads", "/mnt/#{ENV['CURRENT_USER']}/Downloads",  mount_options: ["dmode=775,fmode=664"]
+  config.vm.synced_folder "#{ENV['HOME']}/.ssh", "/mnt/#{ENV['CURRENT_USER']}/.ssh"
+  config.vm.synced_folder "#{ENV['HOME']}", "/mnt/#{ENV['CURRENT_USER']}/home", :mount_options => ["rw","dmode=777,fmode=777"]
+  #, owner: "#{ENV['CURRENT_USER']}"
+  # config.vm.synced_folder "#{ENV['HOME']}", "/mnt/#{ENV['CURRENT_USER']}/home", owner: "#{ENV['CURRENT_USER']}", group: "#{ENV['CURRENT_USER']}", :mount_options => ["rw","dmode=777,fmode=777"]
+#  config.vm.synced_folder "#{ENV['HOME']}/gitrepos/shared", "/mnt/#{ENV['CURRENT_USER']}/shared", owner: "#{ENV['CURRENT_USER']}", group: "#{ENV['CURRENT_USER']}", :mount_options => ["rw","dmode=777,fmode=777"]
+#  config.vm.synced_folder "c:/Windows", "/mnt/WindowsDiskC/", :mount_options => ["rw","dmode=777,fmode=666"]
+#  config.vm.synced_folder "#{ENV['HOME']}/gitrepos", "/mnt/#{ENV['CURRENT_USER']}/gitrepos", :mount_options => ["rw","dmode=775,fmode=664"]
+
+  # config.vm.provision "shell", inline: "sudo apt-get update", run: 'always'
+
+   # Create desktop icon
+#   config.vm.provision :shell, inline:
+#      'desktopdir=/home/vagrant/Desktop
+#       sudo mkdir -p $desktopdir
+#       shortcut=/home/vagrant/Desktop/Eclipse.desktop
+#       cat <<EOT >$shortcut
+#       [Desktop Entry]
+#       Encoding=UTF-8
+#       Type=Application
+#       Name=Eclipse with Franca
+#       Name[en_US]=Eclipse with Franca
+#       Icon=/home/vagrant/tools/autoeclipse/eclipse/icon.xpm
+#       Exec=/home/vagrant/tools/autoeclipse/eclipse/eclipse -data /home/vagrant/workspace
+#       EOT
+#       chmod 755 $shortcut'
+
+
+  # Provider-specific configuration so you can fine-tune various
+  # backing providers for Vagrant. These expose provider-specific options.
+  # Example for VirtualBox:
+  #
+  # config.vm.provider "virtualbox" do |vb|
+  #   # Display the VirtualBox GUI when booting the machine
+  #   vb.gui = true
+  #
+  #   # Customize the amount of memory on the VM:
+  #   vb.memory = "1024"
+  # end
+  #
+  # View the documentation for the provider you are using for more
+  # information on available options.
+
+  # Define a Vagrant Push strategy for pushing to Atlas. Other push strategies
+  # such as FTP and Heroku are also available. See the documentation at
+  # https://docs.vagrantup.com/v2/push/atlas.html for more information.
+  # config.push.define "atlas" do |push|
+  #   push.app = "YOUR_ATLAS_USERNAME/YOUR_APPLICATION_NAME"
+  # end
+
+  # Enable provisioning with a shell script. Additional provisioners such as
+  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
+  # documentation for more information about their specific syntax and use.
+  # config.vm.provision "shell", inline: <<-SHELL
+  #   sudo apt-get update
+  #   sudo apt-get install -y apache2
+  # SHELL
+end

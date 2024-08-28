@@ -1,0 +1,8 @@
+Package: jenkins
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: Jenkins
+Maintainer: robert.wettergren@ericsson.com
+Pre-Depends: tomcat6, maven (>=3.0.5-1enm)

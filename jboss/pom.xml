@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.ericsson.de</groupId>
+        <artifactId>ide</artifactId>
+        <version>1.0.1</version>
+    </parent>
+    <artifactId>jboss</artifactId>
+    <version>6.4.5-2enm-SNAPSHOT</version> 
+
+    <properties>
+        <ericsson.scm.url>scm:git:[fetch=]ssh://gerritmirror-ha.lmera.ericsson.se:29418/OSS/com.ericsson.de/ide[push=]ssh://gerrit.ericsson.se:29418/OSS/com.ericsson.de/ide</ericsson.scm.url>
+    </properties>
+
+    <scm>
+        <developerConnection>${ericsson.scm.url}</developerConnection>
+        <connection>${ericsson.scm.url}</connection>
+    <tag>HEAD</tag>
+  </scm>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <!-- outputDirectory>${project.build.directory}</outputDirectory -->
+                            <!-- stripVersion>true</stripVersion -->
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.jboss.as</groupId>
+                                    <artifactId>jboss-as-dist</artifactId>
+                                    <version>6.4.5</version>
+                                    <type>zip</type>
+                                    <!-- outputDirectory>${project.build.directory}/jboss-as-dist</outputDirectory -->
+                                    <!-- destFileName>jboss-as-dist.zip</destFileName -->
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>jdeb</artifactId>
+                <groupId>org.vafer</groupId>
+                <configuration>
+                    <dataSet>
+                        <data>
+                            <src>${project.build.directory}/dependency</src>
+                            <type>directory</type>
+                            <excludes>**/*.sh</excludes>
+                            <mapper>
+                                <type>perm</type>
+                                <user>root</user>
+                                <group>root</group>
+                                <filemode>666</filemode>
+                                <strip>1</strip>
+                                <prefix>/usr/local/jboss</prefix>
+                            </mapper>
+                        </data>
+                        <data>
+                            <src>${project.build.directory}/dependency</src>
+                            <type>directory</type>
+                            <includes>**/*.sh</includes>
+                            <mapper>
+                                <type>perm</type>
+                                <user>root</user>
+                                <group>root</group>
+                                <filemode>755</filemode>
+                                <strip>1</strip>
+                                <prefix>/usr/local/jboss</prefix>
+                            </mapper>
+                        </data>
+                        <data>
+                            <src>${project.build.outputDirectory}/jboss.sh</src>
+                            <type>file</type>
+                            <mapper>
+                                <type>perm</type>                                                          
+                                <user>root</user>
+                                <group>root</group>
+                                <filemode>555</filemode>
+					            <prefix>/etc/profile.d</prefix>
+                            </mapper>
+                        </data>
+                        <data>
+                            <src>${project.build.outputDirectory}/jboss-as</src>
+                            <type>file</type>
+                            <mapper>
+                                <type>perm</type>                                                          
+                                <user>root</user>
+                                <group>root</group>
+                                <filemode>555</filemode>
+                                <prefix>/etc/init.d</prefix>
+                            </mapper>
+                        </data>
+                        <data>
+                            <src>${project.build.outputDirectory}/jboss-as.conf</src>
+                            <type>file</type>
+                            <mapper>
+                                <type>perm</type>
+                                <user>root</user>
+                                <group>root</group>
+                                <filemode>555</filemode>
+                                <prefix>/etc/jboss</prefix>
+                            </mapper>
+                        </data>
+                    </dataSet>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

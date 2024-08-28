@@ -1,0 +1,8 @@
+Package: jboss
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: amd64
+Description: ENM JBoss
+Pre-Depends: oracle-java7-installer
+Maintainer: robert.wettergren@ericsson.com

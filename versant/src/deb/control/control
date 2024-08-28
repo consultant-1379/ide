@@ -1,0 +1,8 @@
+Package: versant
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: amd64
+Description: ENM Versant
+Pre-Depends: xinetd
+Maintainer: giovanni.giurin@ericsson.com

@@ -1,0 +1,8 @@
+Package: cdt2
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: amd64
+Description: ENM IDE CDT2
+Pre-Depends: nodejs, npm
+Maintainer: robert.wettergren@ericsson.com

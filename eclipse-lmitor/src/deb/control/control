@@ -1,0 +1,8 @@
+Package: eclipse-lmitor
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: Tor Eclipse Plugins and Configuration
+Pre-Depends: eclipse
+Maintainer: robert.wettergren@ericsson.com

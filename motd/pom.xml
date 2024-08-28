@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.ericsson.de</groupId>
+        <artifactId>ide</artifactId>
+        <version>1.0.1</version>
+    </parent>
+    <artifactId>motd</artifactId>
+    <version>1.0.1-1enm-SNAPSHOT</version>
+
+    <properties>
+        <ericsson.scm.url>scm:git:[fetch=]ssh://gerritmirror-ha.lmera.ericsson.se:29418/OSS/com.ericsson.de/ide[push=]ssh://gerrit.ericsson.se:29418/OSS/com.ericsson.de/ide</ericsson.scm.url>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>jdeb</artifactId>
+                <groupId>org.vafer</groupId>
+                <configuration>
+                    <dataSet>
+                        <data>
+                            <src>${project.build.outputDirectory}/motd</src>
+                            <type>file</type>
+                            <mapper>
+                                <type>perm</type>
+                                <user>root</user>
+                                <group>root</group>
+                                <filemode>444</filemode>
+                                <prefix>/etc</prefix>
+                            </mapper>
+                        </data>
+                        <data>
+                            <src>${project.build.outputDirectory}/motd.sh</src>
+                            <type>file</type>
+                            <mapper>
+                                <type>perm</type>
+                                <user>root</user>
+                                <group>root</group>
+                                <filemode>555</filemode>
+                                <prefix>/usr/local/bin</prefix>
+                            </mapper>
+                        </data>
+                        <data>
+                            <src>${project.build.outputDirectory}/motd.desktop</src>
+                            <type>file</type>
+                            <mapper>
+                                <type>perm</type>
+                                <user>root</user>
+                                <group>root</group>
+                                <filemode>444</filemode>
+                                <prefix>/etc/xdg/autostart</prefix>
+                            </mapper>
+                        </data>
+                    </dataSet>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <scm>
+        <developerConnection>${ericsson.scm.url}</developerConnection>
+        <connection>${ericsson.scm.url}</connection>
+      <tag>HEAD</tag>
+  </scm>
+</project>

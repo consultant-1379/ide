@@ -1,0 +1,8 @@
+Package: eclipse-slf4j-api
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: Eclipse SLF4J API Plugin
+Maintainer: robert.wettergren@ericsson.com
+Depends: eclipse (>= 4.4.2-0enm)

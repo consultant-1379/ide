@@ -1,0 +1,4 @@
+#!/bin/sh
+
+#Update Max Number of Transactions
+sed -i "s/#max_prepared_transactions = 0/max_prepared_transactions = 100/" /etc/postgresql/9.3/main/postgresql.conf

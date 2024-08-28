@@ -1,0 +1,8 @@
+Package: eclipse-mylyn
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: Eclipse MyLyn Plugins
+Maintainer: robert.wettergren@ericsson.com
+Depends: eclipse (>= 4.4.2-0enm)

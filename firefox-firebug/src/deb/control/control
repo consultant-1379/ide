@@ -1,0 +1,8 @@
+Package: firefox-firebug
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: amd64
+Description: Firefox Firebug Plugin
+Maintainer: robert.wettergren@ericsson.com
+Depends: firefox (>=30)

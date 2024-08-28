@@ -1,0 +1,8 @@
+Package: npm
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: NPM
+Maintainer: giovanni.giurin@ericsson.com
+Depends: nodejs

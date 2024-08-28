@@ -1,0 +1,7 @@
+#!/bin/sh
+# Disable splash screen
+perl -i -p0e 's/-showsplash\ncom.ericsson.eecs.single.branding/-nosplash/g' /usr/local/eclipse/eclipse.ini
+# Update memory configuration
+perl -i -p0e 's/-Xms.*/-Xms1g/g' /usr/local/eclipse/eclipse.ini
+perl -i -p0e 's/-Xmx.*/-Xmx1g/g' /usr/local/eclipse/eclipse.ini
+echo '-XX:MaxPermSize=512m' >> /usr/local/eclipse/eclipse.ini

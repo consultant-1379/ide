@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# check xinetd has successfully installed
+service xinetd status
+
+# add xinetd to boot script
+update-rc.d xinetd defaults
+
+# define environment variables for installation
+install_dir=/usr/local/versant
+
+install_properties="USER_INSTALL_DIR=$install_dir
+CREATE_OSCDBID_FILE=TRUE
+DBID_PATH=$install_dir/databases
+DBID_NODE=localhost
+DB_PATH=$install_dir/databases
+DBSA_GROUP=versant
+DBSA_LOGIN=versant"
+
+# create installation properties for install
+cd $install_dir
+echo -e ">>> Creating install properties file"
+echo "$install_properties" > "install.properties"
+
+# add versant user
+useradd -r versant
+
+# run the install script
+echo -e ">>> Running install script"
+install_script="$(ls | grep Versant_JPA_Server_)"
+./$install_script -Dinstall4j.keepLog=true -q -varfile install.properties
+
+chmod 777 databases

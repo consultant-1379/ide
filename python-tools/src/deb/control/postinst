@@ -1,0 +1,64 @@
+#!/bin/sh
+
+cd /usr/local/
+mkdir -p usr/lib/python2.7/site-packages
+
+# export environment variables
+export PY_3PPS=/usr/local
+export PYTHONPATH="${PY_3PPS}/usr/lib/python2.7/site-packages"
+export PYTHON_HOME=/usr/bin/python
+export PATH="${PATH}:${PYTHON_HOME}/bin:${PY_3PPS}/usr/bin"
+
+# setup alternative python2.7
+update-alternatives --install /usr/bin/python python /usr/bin/python2.7 10
+
+cd /tmp
+
+# download the litp-requirements file from litp docs
+wget https://arm1s11-eiffel004.eiffel.gic.ericsson.se:8443/nexus/content/sites/litp2/ERIClitpdocs/1.8.144/_downloads/litp-requirements.txt
+
+# download setuptools, pip and distribute
+wget --no-check-certificate https://pypi.python.org/packages/source/s/setuptools/setuptools-5.6.tar.gz
+tar zxf setuptools-5.6.tar.gz
+
+wget --no-check-certificate https://pypi.python.org/packages/source/p/pip/pip-1.5.6.tar.gz
+tar zxf pip-1.5.6.tar.gz
+
+wget --no-check-certificate https://pypi.python.org/packages/source/d/distribute/distribute-0.7.3.zip
+unzip distribute-0.7.3.zip
+
+# install setuptools, pip and distribute
+cd setuptools-5.6
+python setup.py install --prefix=${PY_3PPS}/usr
+
+cd /tmp
+
+
+cd pip-1.5.6
+python setup.py install --prefix=${PY_3PPS}/usr
+
+cd /tmp
+
+
+cd distribute-0.7.3
+python setup.py install --prefix=${PY_3PPS}/usr
+
+cd /tmp
+
+export PYTHONPATH="${PY_3PPS}/usr/lib/python2.7/site-packages"
+
+# download 3pps listed in requirements file
+mkdir files
+pip install -d files -r litp-requirements.txt
+cd files
+wget --no-check-certificate http://pydot.googlecode.com/files/pydot-1.0.28.tar.gz
+wget --no-check-certificate https://pypi.python.org/packages/source/I/IPy/IPy-0.75.tar.gz
+
+cd /tmp
+
+# install the downloaded 3pps to the required directories
+pip install  --allow-external --no-index --find-links=/tmp/files --ignore-installed -r litp-requirements.txt
+
+export PYTHONPATH=${PY_3PPS}/usr/lib/python2.7/site-packages:${PY_3PPS}/usr/lib/python2.7/dist-packages
+# check the installed 3pps
+pip freeze

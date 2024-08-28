@@ -1,0 +1,8 @@
+Package: postgres
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: PostgreSQL Database and Installation
+Pre-Depends: postgresql, postgresql-contrib
+Maintainer: robert.wettergren@ericsson.com

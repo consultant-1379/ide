@@ -1,0 +1,8 @@
+Package: eclipse-testng
+Version: ${project.version}
+Section: misc
+Priority: low
+Architecture: all
+Description: Eclipse testNG Plugin
+Maintainer: robert.wettergren@ericsson.com
+Depends: eclipse (>= 4.4.2-0enm)

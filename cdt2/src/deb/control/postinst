@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# npm cache clean and update needs to be done for the CDT2 install
+npm cache clean -f
+npm install -g n
+n stable
+
+# CDT2 install command
+npm install -g cdt2 --registry http://presentation-layer.lmera.ericsson.se/registry --proxy null
+
+# check the CDT2 version after install
+cdt2 --version

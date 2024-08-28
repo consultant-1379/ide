@@ -1,0 +1,254 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.ericsson.de</groupId>
+        <artifactId>ide</artifactId>
+        <version>1.0.1</version>
+    </parent>
+
+    <groupId>com.ericsson.de</groupId>
+    <artifactId>python</artifactId>
+    <version>2.7.14-21enm-SNAPSHOT</version>
+
+
+    <properties>
+        <python.version>2.7.14</python.version>
+        <ericsson.scm.url>scm:git:[fetch=]ssh://gerritmirror-ha.lmera.ericsson.se:29418/OSS/com.ericsson.de/ide[push=]ssh://gerrit.ericsson.se:29418/OSS/com.ericsson.de/ide</ericsson.scm.url>
+	<VerifyPhase>verify</VerifyPhase>
+        <publish_artifact>true</publish_artifact>
+    </properties>
+    
+    <scm>
+        <developerConnection>${ericsson.scm.url}</developerConnection>
+        <connection>${ericsson.scm.url}</connection>
+        <tag>HEAD</tag>
+    </scm>
+ 
+
+
+
+   <build>
+      <plugins>
+            <!--   Following call of jdeb plugin with "phase=none" is mandatory to avoid that "jdeb" plugin defined in parent pom is called during this build -->
+            <plugin>
+                <artifactId>jdeb</artifactId>
+                <groupId>org.vafer</groupId>
+                <executions>
+                  <execution>
+                     <phase>none</phase>
+                  </execution>
+                </executions>
+		<!--
+                <configuration>
+                    <dataSet>
+                        <data>
+                            <src>${project.build.directory}/python.deb</src>
+                            <type>file</type>
+                            <mapper>
+                                <type>perm</type>
+                                <filemode>755</filemode>
+                                <user>root</user>  
+                                <group>root</group>
+                                <prefix>/usr/bin</prefix>
+                            </mapper>
+                        </data>
+                        <data>
+                            <src>${project.build.outputDirectory}/python_update.sh</src>
+                            <type>file</type>
+                            <mapper>
+                                <type>perm</type>
+                                <filemode>755</filemode>
+                                <user>root</user>  
+                                <group>root</group>
+                                <prefix>/usr/bin</prefix>
+                            </mapper>
+                        </data>
+			<data>
+			    <type>link</type>
+			    <linkName>/usr/local/bin/python_update.sh</linkName>
+			    <linkTarget>/usr/bin/python_update.sh</linkTarget>
+			</data>
+                    </dataSet>
+                </configuration>
+		-->
+            </plugin>
+      </plugins>
+   </build>
+
+   <profiles>
+      <profile>
+        <id>setPythonDeb</id>
+	<build>
+	  <plugins>
+	    <plugin>
+	        <groupId>com.coderplus.maven.plugins</groupId>
+                <artifactId>copy-rename-maven-plugin</artifactId>
+                <version>1.0.1</version>
+                <executions>
+                  <execution>
+                     <id>rename-file</id>
+                     <phase>${VerifyPhase}</phase>
+                     <goals>
+                        <goal>copy</goal>
+                     </goals>
+                     <configuration>
+                        <sourceFile>${project.build.directory}/python.deb</sourceFile>
+                        <destinationFile>${project.build.directory}/${project.build.finalName}.deb</destinationFile>
+                     </configuration>
+                  </execution>
+                </executions>
+            </plugin>
+
+	    <plugin>
+	       <groupId>org.apache.maven.plugins</groupId>
+	       <artifactId>maven-install-plugin</artifactId>
+	       <version>2.5.1</version>
+	       <configuration>
+	           <groupId>com.ericsson.de</groupId>
+	           <artifactId>python</artifactId>
+	           <version>${project.version}</version>
+	           <packaging>deb</packaging>
+	           <file>${project.build.directory}/${project.build.finalName}.deb</file>
+	           <generatePom>false</generatePom>
+		   <pomFile>${project.basedir}/pom.xml</pomFile>
+	       </configuration>
+	       <executions>
+	         <execution>
+	             <id>default-install</id>
+	             <goals>
+	               <goal>install-file</goal>
+	             </goals>
+	             <phase>install</phase>
+	         </execution>
+	       </executions>
+	    </plugin>
+
+            <plugin>
+               <groupId>org.codehaus.mojo</groupId>
+               <artifactId>build-helper-maven-plugin</artifactId>
+               <version>1.7</version>
+               <executions>
+                  <execution>
+                     <id>attach-artifacts</id>
+                     <phase>install</phase>
+                     <goals>
+                        <goal>attach-artifact</goal>
+                     </goals>
+                     <configuration>
+                        <artifacts>
+                           <artifact>
+	                      <file>${project.build.directory}/${project.build.finalName}.deb</file>
+                              <type>deb</type>                           
+                           </artifact>
+                        </artifacts>
+                     </configuration>
+                  </execution>
+               </executions>
+            </plugin>
+	  </plugins>
+        </build>
+      </profile>
+
+
+      <profile>
+        <id>CifwkPublishPythonDeb</id>
+	<build>
+	  <plugins>
+	    <plugin>
+               <groupId>com.ericsson.maven.plugins</groupId>
+	       <artifactId>cifwk-maven-plugin</artifactId>
+	       <version>1.0.24</version>
+	       <executions>
+                  <execution>
+                     <id>artifact-to-database</id>
+	             <phase>deploy</phase>
+		     <goals>
+			<goal>publish-artifact</goal>
+	   	     </goals>
+	             <configuration>
+                        <media.category>service</media.category>
+                        <media.path />
+                     </configuration>
+                  </execution>
+               </executions>
+            </plugin>
+	  </plugins>
+	</build>
+      </profile>
+
+
+
+      <profile>
+        <id>getPythonSource</id>
+	<build>
+	   <plugins>
+             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <stripVersion>true</stripVersion>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.ericsson.de</groupId>
+                                    <artifactId>python</artifactId>
+                                    <version>${python.version}</version>
+                                    <type>tgz</type>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <destFileName>python.tgz</destFileName>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+             </plugin>
+
+	     <plugin>
+ 	       <groupId>org.codehaus.mojo</groupId>
+	       <artifactId>exec-maven-plugin</artifactId>
+	       <version>1.4.0</version>
+               <executions>
+	         <execution>
+		   <phase>compile</phase>
+	           <goals>
+	             <goal>exec</goal>
+	           </goals>
+	           <configuration>
+	             <outputDirectory>${project.build.directory}</outputDirectory>
+                     <workingDirectory>.</workingDirectory>
+		     <executable>cp</executable>
+		     <arguments>
+		       <argument>${project.basedir}/src/main/resources/Dockerfile</argument>
+		       <argument>${project.build.directory}</argument>
+		     </arguments>
+	           </configuration>
+                 </execution> 
+               </executions>
+	     </plugin>
+
+             <plugin>
+                <artifactId>jdeb</artifactId>
+                <groupId>org.vafer</groupId>
+                <executions>
+                  <execution>
+                     <phase>none</phase>
+                  </execution>
+                </executions>
+             </plugin>
+	   </plugins>
+        </build>
+      </profile>
+
+   </profiles>
+
+</project>
